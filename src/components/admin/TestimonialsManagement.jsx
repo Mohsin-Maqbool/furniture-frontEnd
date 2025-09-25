@@ -110,7 +110,7 @@ const TestimonialsManagement = () => {
             <div className="flex items-center gap-3">
               {t.image && (
                 <img
-                  src={`http://localhost:4500/uploads/${t.image}`}
+                  src={`${import.meta.env.VITE_API_URL}/uploads/${t.image}`}
                   alt={t.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />

@@ -2,7 +2,8 @@
 import axios from "axios";
 import API from "./api";
 
-const API_URL = "http://localhost:5173/api/orders"; // adjust if different
+const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`;
+ // adjust if different
 
 // ✅ fetch all orders for the logged-in user
 export async function fetchOrders() {

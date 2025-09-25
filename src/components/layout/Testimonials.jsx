@@ -40,7 +40,7 @@ const Testimonials = () => {
             >
               {t.image && (
                 <img
-                  src={`http://localhost:4500/uploads/${t.image}`}
+                  src={`${import.meta.env.VITE_API_URL}/uploads/${t.image}`}
                   alt={t.name}
                   className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
                 />

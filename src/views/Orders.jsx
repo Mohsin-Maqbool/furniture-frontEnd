@@ -16,7 +16,7 @@ export default function Orders() {
         }
 
         // ✅ use /my-orders endpoint and send token
-        const res = await fetch("http://localhost:4500/api/orders/my-orders", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/my-orders`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -61,13 +61,12 @@ export default function Orders() {
             <div className="flex justify-between items-center mb-2">
               <p className="font-semibold">Order #{o._id.slice(-6)}</p>
               <span
-                className={`px-2 py-1 rounded text-xs ${
-                  o.status === "delivered"
+                className={`px-2 py-1 rounded text-xs ${o.status === "delivered"
                     ? "bg-green-100 text-green-600"
                     : o.status === "shipped"
-                    ? "bg-blue-100 text-blue-600"
-                    : "bg-yellow-100 text-yellow-600"
-                }`}
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-yellow-100 text-yellow-600"
+                  }`}
               >
                 {o.status}
               </span>
