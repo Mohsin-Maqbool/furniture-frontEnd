@@ -5,10 +5,10 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Hero from "@/components/layout/Hero";
 import FeaturedCategories from "@/components/layout/FeaturedCategories";
-import BestSellers from "@/components/layout/BestSellers";
+import BestSellers from "./components/layout/BestSellers";
 import Interiors from "@/components/layout/Interiors";
 import WhyChooseUs from "@/components/layout/WhyChooseUs";
-import Testimonials from "@/components/layout/Testimonials";
+import Testimonials from "./components/layout/Testimonials";
 import Footer from "@/components/layout/Footer";
 
 // Admin
