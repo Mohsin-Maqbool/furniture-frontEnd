@@ -3,11 +3,11 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4500";
 
-// create axios instance pointed at /api
 const API = axios.create({
-  baseURL: `${API_BASE}/api`,
+  baseURL: `${API_BASE}/api`,  // yahan ek hi /api lagega
   timeout: 15000,
 });
+
 
 // ✅ request interceptor
 API.interceptors.request.use(

@@ -10,11 +10,12 @@ export default ({ mode }) => {
     server: {
       proxy: {
         "/api": {
-          target: env.VITE_API_URL || "http://localhost:4500", // fallback for local
+          target: "http://localhost:4500",
           changeOrigin: true,
           secure: false,
         },
       },
+
     },
   });
 };
