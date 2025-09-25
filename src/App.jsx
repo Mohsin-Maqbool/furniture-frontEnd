@@ -2,7 +2,7 @@
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "./components/layout/Navbar";
 import Hero from "@/components/layout/Hero";
 import FeaturedCategories from "@/components/layout/FeaturedCategories";
 import BestSellers from "@/components/layout/BestSellers";
