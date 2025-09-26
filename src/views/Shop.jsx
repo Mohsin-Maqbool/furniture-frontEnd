@@ -19,6 +19,8 @@ export default function Shop() {
     try {
       const { data: cats } = await API.get("/categories");
       const subsData = {};
+
+      // ⚠️ For many categories this can be heavy; optimize later
       await Promise.all(
         cats.map(async (cat) => {
           try {
@@ -29,6 +31,7 @@ export default function Shop() {
           }
         })
       );
+
       setCategories(cats);
       setSubs(subsData);
     } catch (err) {
@@ -59,6 +62,7 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
+  // --- ADD TO CART ---
   const handleAddToCart = async (productId) => {
     try {
       const updatedCart = await addToCart(productId, 1);
@@ -70,7 +74,12 @@ export default function Shop() {
       );
     } catch (err) {
       console.error("Failed to add to cart", err);
-      toast.error("Failed to add to cart");
+      if (err?.response?.status === 401) {
+        toast.error("Please login first");
+        window.location.href = "/login"; // 🔑 redirect if unauthorized
+      } else {
+        toast.error("Failed to add to cart");
+      }
     }
   };
 
@@ -175,7 +184,9 @@ export default function Shop() {
                     </span>
                     <span
                       className={`px-2 py-1 text-xs rounded font-medium ${
-                        prod.status === "active" ? "bg-green-200 text-green-800" : "bg-gray-200 text-gray-600"
+                        prod.status === "active"
+                          ? "bg-green-200 text-green-800"
+                          : "bg-gray-200 text-gray-600"
                       }`}
                     >
                       {prod.status || "active"}

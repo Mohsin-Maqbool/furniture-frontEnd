@@ -1,13 +1,13 @@
 // client/src/utils/api.js
 import axios from "axios";
 
+
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4500";
 
 const API = axios.create({
-  baseURL: `${API_BASE}/api`,  // yahan ek hi /api lagega
+  baseURL: `${API_BASE}/api`, // single /api only
   timeout: 15000,
 });
-
 
 // ✅ request interceptor
 API.interceptors.request.use(
@@ -30,7 +30,7 @@ API.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("userRole");
       localStorage.removeItem("user");
-      window.dispatchEvent(new CustomEvent("unauthorized", { detail: {} }));
+      window.dispatchEvent(new CustomEvent("unauthorized"));
     }
     return Promise.reject(error);
   }

@@ -1,5 +1,9 @@
 // client/src/utils/cartApi.js
-import API from "./api"; // axios instance
+import API from "./api"; // central axios instance
+
+// -------------------------
+// Cart API Helpers
+// -------------------------
 
 // Fetch cart items for logged-in user
 export const fetchCart = async () => {
@@ -31,12 +35,14 @@ export const updateCartItem = async (productId, qty) => {
   return data;
 };
 
-// Track cart count globally
+// -------------------------
+// Cart Count Handling
+// -------------------------
 export let cartCount = 0;
 
 /**
  * Fetch cart count (only if user logged in)
- * - If no token present, resolve to 0 (no network call).
+ * - If no token present, resolve to 0 (skip network call).
  */
 export const fetchCartCount = async () => {
   try {
@@ -51,16 +57,13 @@ export const fetchCartCount = async () => {
       ? cart.items.reduce((sum, item) => sum + (item.qty || 0), 0)
       : 0;
   } catch (err) {
-    // swallow errors here to avoid console noise; keep count zero
     console.error("❌ Cart count fetch error:", err?.message || err);
     cartCount = 0;
   }
   return cartCount;
 };
 
-// DO NOT auto-call fetchCartCount() at module load (call from components when needed)
-
-// Listen for cart updates globally (other parts of app can dispatch this)
+// Global listener for cart updates
 window.addEventListener("cartUpdated", (e) => {
   cartCount = e.detail.count ?? cartCount;
 });

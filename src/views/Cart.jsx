@@ -8,19 +8,20 @@ import {
 } from "@/utils/cartApi";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "@/utils/imageHelper"; // ✅ central image handler
+
+// ✅ Configurable constants
+const DISCOUNT_THRESHOLD = 2000;
+const DISCOUNT_RATE = 0.05;
+const TAX_RATE = 0.02;
+const SHIPPING_THRESHOLD = 1000;
+const SHIPPING_FEE = 100;
 
 export default function Cart() {
   const [cart, setCart] = useState(null);
   const [showAddress, setShowAddress] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false); // ✅ spinner for updates
   const navigate = useNavigate();
-
-  // ✅ Image URL handler
-  const getImageUrl = (path) => {
-    if (!path) return "/placeholder.png";
-    return path.startsWith("http")
-      ? path
-      : `${import.meta.env.VITE_API_URL}/${path}`;
-  };
 
   // ✅ Refresh cart from server
   const refreshCart = async () => {
@@ -58,11 +59,14 @@ export default function Cart() {
     setCart(updated);
     updateCountEvent(updated);
     try {
+      setLoadingAction(true);
       await decreaseCartItem(id);
     } catch (err) {
       console.error("❌ Failed to decrease:", err);
       toast.error("Failed to update quantity");
       refreshCart();
+    } finally {
+      setLoadingAction(false);
     }
   };
 
@@ -76,11 +80,14 @@ export default function Cart() {
     setCart(updated);
     updateCountEvent(updated);
     try {
+      setLoadingAction(true);
       await addToCart(id, 1);
     } catch (err) {
       console.error("❌ Failed to increase:", err);
       toast.error("Failed to update quantity");
       refreshCart();
+    } finally {
+      setLoadingAction(false);
     }
   };
 
@@ -93,11 +100,14 @@ export default function Cart() {
     updateCountEvent(updated);
     toast.success(`${name} removed from cart`);
     try {
+      setLoadingAction(true);
       await removeFromCart(id);
     } catch (err) {
       console.error("❌ Failed to remove:", err);
       toast.error("Failed to remove item");
       refreshCart();
+    } finally {
+      setLoadingAction(false);
     }
   };
 
@@ -112,9 +122,9 @@ export default function Cart() {
     (sum, i) => sum + i.qty * i.product.price,
     0
   );
-  const discount = subtotal > 2000 ? subtotal * 0.05 : 0;
-  const tax = (subtotal - discount) * 0.02;
-  const shipping = subtotal > 1000 ? 0 : 100;
+  const discount = subtotal > DISCOUNT_THRESHOLD ? subtotal * DISCOUNT_RATE : 0;
+  const tax = (subtotal - discount) * TAX_RATE;
+  const shipping = subtotal > SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const total = subtotal - discount + tax + shipping;
 
   return (
@@ -146,16 +156,19 @@ export default function Cart() {
                 <img
                   className="max-w-full h-full object-cover"
                   src={getImageUrl(i.product.image)}
-                  alt={i.product.name}
+                  alt={i.product.title || i.product.name}
                 />
               </div>
               <div>
-                <p className="hidden md:block font-semibold">{i.product.name}</p>
+                <p className="hidden md:block font-semibold">
+                  {i.product.title || i.product.name}
+                </p>
                 <div className="font-normal text-gray-500/70">
-                  <p>Category: {i.product.category || "N/A"}</p>
+                  <p>Category: {i.product.category?.name || "N/A"}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <button
                       onClick={() => handleDecrease(i.product._id)}
+                      disabled={loadingAction}
                       className="px-2 border rounded"
                     >
                       -
@@ -163,6 +176,7 @@ export default function Cart() {
                     <span>{i.qty}</span>
                     <button
                       onClick={() => handleIncrease(i.product._id)}
+                      disabled={loadingAction}
                       className="px-2 border rounded"
                     >
                       +
@@ -171,10 +185,18 @@ export default function Cart() {
                 </div>
               </div>
             </div>
-            <p className="text-center">Rs. {i.product.price * i.qty}</p>
+            <p className="text-center">
+              Rs. {i.product.price} × {i.qty} ={" "}
+              <span className="font-semibold">
+                Rs. {i.product.price * i.qty}
+              </span>
+            </p>
             <button
-              onClick={() => handleRemove(i.product._id, i.product.name)}
-              className="cursor-pointer mx-auto"
+              onClick={() =>
+                handleRemove(i.product._id, i.product.title || i.product.name)
+              }
+              disabled={loadingAction}
+              className="cursor-pointer mx-auto text-red-500 hover:text-red-700"
             >
               ❌
             </button>
@@ -238,7 +260,7 @@ export default function Cart() {
           </p>
           {discount > 0 && (
             <p className="flex justify-between text-green-600">
-              <span>Discount (5%)</span>
+              <span>Discount ({DISCOUNT_RATE * 100}%)</span>
               <span>- Rs. {discount.toFixed(0)}</span>
             </p>
           )}
@@ -249,7 +271,7 @@ export default function Cart() {
             </span>
           </p>
           <p className="flex justify-between">
-            <span>Tax (2%)</span>
+            <span>Tax ({TAX_RATE * 100}%)</span>
             <span>Rs. {tax.toFixed(0)}</span>
           </p>
           <p className="flex justify-between text-lg font-medium mt-3">
@@ -260,7 +282,8 @@ export default function Cart() {
 
         <button
           onClick={() => navigate("/checkout")}
-          className="w-full py-3 mt-6 cursor-pointer bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition rounded"
+          disabled={cart.items.length === 0 || loadingAction}
+          className="w-full py-3 mt-6 cursor-pointer bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition rounded disabled:opacity-50"
         >
           Place Order
         </button>
